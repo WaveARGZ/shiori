@@ -51,7 +51,67 @@ async function settle(wc: WebContents): Promise<void> {
   }
 }
 
-export async function runSmoke(): Promise<void> {
+/**
+ * Second launch against the profile the 'fresh' run left behind. This is the
+ * only honest way to test "再起動後も全レーン復元" — restoring lanes from disk
+ * cannot be observed inside the process that wrote them.
+ *
+ * The page URL it restores points at the previous run's loopback port, which is
+ * dead by now. That is deliberate: the lane and page structure has to come back
+ * from the store, not from a successful network load.
+ */
+async function runRestartSmoke(): Promise<void> {
+  try {
+    const win = await waitFor(() => BrowserWindow.getAllWindows()[0]);
+    await settle(win.webContents);
+    await delay(800);
+
+    const state = await win.webContents.executeJavaScript(
+      "window.shiori.invoke('shiori:get-state')",
+    );
+    const names: string[] = state.lanes.map((l: { name: string }) => l.name);
+    check('lanes restored after restart', names.length >= 2, names.join(', '));
+    check('lane names survived restart', names.includes('研究'), names.join(', '));
+
+    const active = state.lanes.find((l: { id: string }) => l.id === state.activeLaneId);
+    check('active lane restored', !!active, active?.name ?? 'none');
+    check(
+      'pages restored into their lane',
+      !!active && active.pages.length === 1,
+      `${active?.pages.length ?? 0} pages`,
+    );
+    check(
+      'restored page kept its URL',
+      !!active?.pages[0]?.url?.startsWith('http://127.0.0.1:'),
+      active?.pages[0]?.url ?? 'none',
+    );
+
+    const chips = await win.webContents.executeJavaScript(
+      "document.querySelectorAll('#pages .chip').length",
+    );
+    check('restored page chip rendered', chips === 1, `${chips} chips`);
+
+    const rows = await win.webContents.executeJavaScript(
+      "window.shiori.invoke('shiori:go-home').then(() => new Promise(r => setTimeout(r, 300))).then(() => document.querySelectorAll('#home-list .read-row').length)",
+    );
+    check('bookmarks survived restart', rows >= 1, `${rows} rows`);
+
+    const clipCount = await win.webContents.executeJavaScript(
+      "window.shiori.invoke('shiori:get-clips').then(c => c.length)",
+    );
+    check('clips survived restart', clipCount >= 1, `${clipCount} clips`);
+  } catch (error) {
+    check('restart run completed without throwing', false, String(error));
+  }
+
+  const failed = results.filter((r) => !r.ok);
+  console.log(`\n${results.length - failed.length}/${results.length} restart checks passed`);
+  app.exit(failed.length === 0 ? 0 : 1);
+}
+
+export async function runSmoke(mode: 'fresh' | 'restart'): Promise<void> {
+  if (mode === 'restart') return runRestartSmoke();
+
   let server: Server | undefined;
   try {
     server = createServer((_req, res) => {
@@ -107,13 +167,24 @@ export async function runSmoke(): Promise<void> {
       `progress=${saved?.progress.toFixed(3)}`,
     );
 
+    // Our restore must be the only thing touching scrollTop.
+    const restoration = await page.executeJavaScript('history.scrollRestoration');
+    check(
+      'native scroll restoration disabled',
+      restoration === 'manual',
+      `scrollRestoration=${restoration}`,
+    );
+
     // --- universal bookmark: scroll is restored after a reload --------------
     page.reload();
     await settle(page);
     // The restore schedule re-applies the target while the page lays out.
     await delay(5200);
     const restoredY = await page.executeJavaScript('window.scrollY');
-    check('scroll restored after reload', restoredY > 2000, `scrollY=${restoredY}`);
+    // Deliberately a tight band, not `> 2000`: landing anywhere other than
+    // where the reader left off is the failure this feature exists to prevent,
+    // and a loose bound hides drift.
+    check('scroll restored after reload', Math.abs(restoredY - 2400) <= 50, `scrollY=${restoredY}`);
 
     // --- sourced clipboard --------------------------------------------------
     const clipsBefore = listClips().length;
@@ -173,7 +244,7 @@ export async function runSmoke(): Promise<void> {
     const scrollAfterSwitch = await page.executeJavaScript('window.scrollY');
     check(
       'scroll survives lane round-trip (no reload)',
-      scrollAfterSwitch > 2000,
+      Math.abs(scrollAfterSwitch - 2400) <= 50,
       `scrollY=${scrollAfterSwitch}`,
     );
 

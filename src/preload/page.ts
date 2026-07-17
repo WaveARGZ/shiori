@@ -20,6 +20,17 @@ let restoring = false;
 let lastReportAt = 0;
 let trailing: ReturnType<typeof setTimeout> | null = null;
 
+// Chromium restores scroll position on reload and back/forward on its own. Left
+// enabled, that races our own restore for control of the same scrollTop and the
+// landing position becomes nondeterministic. Ours is the mechanism that knows
+// about 栞 (and fires for the bookmarked URL on back/forward too), so it takes
+// exclusive ownership.
+try {
+  history.scrollRestoration = 'manual';
+} catch {
+  // Not supported here; our restore still runs, just with a rival.
+}
+
 function measure(): ScrollReport {
   const doc = document.documentElement;
   const body = document.body;

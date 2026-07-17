@@ -1,3 +1,4 @@
+import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { app, BrowserWindow, Menu, type MenuItemConstructorOptions } from 'electron';
 import { Browser } from './browser';
@@ -5,6 +6,14 @@ import { registerIpc } from './ipc';
 import { flushBookmarks } from './store';
 
 const browser = new Browser();
+
+/** SHIORI_SMOKE=1 runs the end-to-end pass; =restart re-opens its profile. */
+const smokeMode: 'fresh' | 'restart' | null =
+  process.env.SHIORI_SMOKE === '1'
+    ? 'fresh'
+    : process.env.SHIORI_SMOKE === 'restart'
+      ? 'restart'
+      : null;
 
 function buildMenu(): void {
   const template: MenuItemConstructorOptions[] = [
@@ -100,10 +109,15 @@ if (!app.requestSingleInstanceLock()) {
   });
 
   app.whenReady().then(() => {
-    // Keep smoke runs out of the real profile. Safe here only because the store
-    // is built lazily, on first access inside browser.create().
-    if (process.env.SHIORI_SMOKE === '1') {
-      app.setPath('userData', join(app.getPath('temp'), 'shiori-smoke-profile'));
+    // Keep smoke runs out of the real profile. The 'fresh' run starts from an
+    // empty one so its counts have a known-zero baseline; the 'restart' run
+    // deliberately keeps it, because reopening what the previous launch wrote
+    // is the whole point of that pass. Safe here only because the store is
+    // built lazily, on first access inside browser.create().
+    if (smokeMode) {
+      const profile = join(app.getPath('temp'), 'shiori-smoke-profile');
+      if (smokeMode === 'fresh') rmSync(profile, { recursive: true, force: true });
+      app.setPath('userData', profile);
     }
 
     registerIpc(browser);
@@ -114,8 +128,8 @@ if (!app.requestSingleInstanceLock()) {
       if (BrowserWindow.getAllWindows().length === 0) browser.create();
     });
 
-    if (process.env.SHIORI_SMOKE === '1') {
-      void import('./smoke').then((m) => m.runSmoke());
+    if (smokeMode) {
+      void import('./smoke').then((m) => m.runSmoke(smokeMode));
     }
   });
 }
