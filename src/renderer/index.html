@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:;"
+    />
+    <title>栞</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header id="topbar">
+      <div class="traffic-spacer"></div>
+      <div class="nav-group">
+        <button id="btn-back" class="icon-btn" title="戻る (⌘[)" aria-label="戻る">‹</button>
+        <button id="btn-forward" class="icon-btn" title="進む (⌘])" aria-label="進む">›</button>
+        <button id="btn-reload" class="icon-btn" title="再読み込み (⌘R)" aria-label="再読み込み">
+          ⟳
+        </button>
+      </div>
+      <button id="btn-home" class="home-btn" title="続きから読む (⌘T)">栞</button>
+      <div id="urlwrap">
+        <input
+          id="url"
+          type="text"
+          spellcheck="false"
+          autocomplete="off"
+          placeholder="URL または 検索"
+        />
+        <span id="url-progress" class="url-progress" hidden></span>
+      </div>
+      <button id="btn-clips" class="clip-btn" title="出典つきクリップ">
+        <span class="clip-icon">❝</span>
+        <span id="clip-count" class="clip-count" hidden>0</span>
+      </button>
+    </header>
+
+    <nav id="lanebar">
+      <span class="bar-label">レーン</span>
+      <div id="lanes" class="chips"></div>
+      <button id="btn-new-lane" class="add-btn" title="新しいレーン (⌘⇧N)">＋</button>
+    </nav>
+
+    <nav id="pagebar">
+      <span class="bar-label">ページ</span>
+      <div id="pages" class="chips"></div>
+      <button id="btn-new-page" class="add-btn" title="新しいページ (⌘T)">＋</button>
+    </nav>
+
+    <main id="body">
+      <!-- The WebContentsView for the active page is positioned exactly over
+           #stage by the main process. #home fills the same box and shows
+           through whenever no page is active. -->
+      <section id="stage">
+        <div id="home">
+          <div id="home-inner">
+            <h1 class="home-title">栞</h1>
+            <p class="home-sub">読みかけを、置いたところから。</p>
+            <div class="home-list-head">
+              <h2>続きから読む</h2>
+              <span id="home-count" class="muted"></span>
+            </div>
+            <ul id="home-list" class="reading-list"></ul>
+            <p id="home-empty" class="empty" hidden>
+              まだ読みかけはありません。上のバーからページを開くと、
+              スクロール位置と読了率が自動で記録されます。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <aside id="clip-panel" hidden>
+        <div class="panel-head">
+          <h2>クリップ</h2>
+          <div class="panel-actions">
+            <button id="btn-copy-all" class="text-btn" title="すべてMarkdown引用でコピー">
+              全部コピー
+            </button>
+            <button id="btn-clear-clips" class="text-btn danger" title="すべて削除">消去</button>
+            <button id="btn-close-panel" class="icon-btn small" aria-label="閉じる">×</button>
+          </div>
+        </div>
+        <ul id="clip-list" class="clip-list"></ul>
+        <p id="clip-empty" class="empty small" hidden>
+          ページ上でテキストをコピーすると、出典つきでここに積まれます。
+        </p>
+      </aside>
+    </main>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>

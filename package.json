@@ -1,0 +1,30 @@
+{
+  "name": "shiori",
+  "version": "0.1.0",
+  "description": "栞 — a browser that manages what you were in the middle of, not where you were.",
+  "author": "Shiori",
+  "license": "MIT",
+  "private": true,
+  "main": "dist-electron/main/index.js",
+  "scripts": {
+    "clean": "rm -rf dist dist-electron",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:renderer": "tsc -p tsconfig.renderer.json",
+    "check:renderer": "node scripts/check-renderer.mjs",
+    "copy:assets": "node scripts/copy-assets.mjs",
+    "build": "npm run clean && npm run build:main && npm run build:renderer && npm run check:renderer && npm run copy:assets",
+    "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
+    "start": "npm run build && electron .",
+    "smoke": "npm run build && SHIORI_SMOKE=1 electron .",
+    "dist": "npm run build && electron-builder --mac"
+  },
+  "dependencies": {
+    "electron-store": "8.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "electron": "43.1.1",
+    "electron-builder": "26.15.3",
+    "typescript": "5.9.3"
+  }
+}

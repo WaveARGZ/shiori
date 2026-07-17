@@ -1,0 +1,44 @@
+appId: com.shiori.browser
+productName: Shiori
+copyright: Shiori
+
+directories:
+  output: dist
+  buildResources: build
+
+# No native modules by design (electron-store is pure JS), so skip the rebuild step.
+npmRebuild: false
+
+files:
+  - dist-electron/**/*
+  - package.json
+  - "!**/*.map"
+
+mac:
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+      arch:
+        - arm64
+    - target: zip
+      arch:
+        - arm64
+  # Unsigned build: no Developer ID identity, no notarization.
+  identity: null
+  hardenedRuntime: false
+  gatekeeperAssess: false
+  darkModeSupport: true
+  extendInfo:
+    NSHumanReadableCopyright: Shiori
+
+dmg:
+  sign: false
+  title: Shiori ${version}
+  contents:
+    - x: 140
+      y: 200
+      type: file
+    - x: 400
+      y: 200
+      type: link
+      path: /Applications
