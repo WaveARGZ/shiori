@@ -10,16 +10,56 @@ export interface PageRef {
   id: string;
   url: string;
   title: string;
+  /** Favicon URL as reported by the page; attacker-controlled, render-only. */
+  favicon?: string;
 }
 
-/** A context lane: replaces the tab strip as the top-level grouping. */
+/** The AI chat services reachable from the quick-access dock. */
+export type AiService = 'chatgpt' | 'gemini' | 'claude' | 'perplexity';
+
+/** State of the AI side panel (Edge-Copilot-style docked chat). */
+export interface AiState {
+  open: boolean;
+  service: AiService;
+  width: number;
+}
+
+/**
+ * State of the parallel AI mode: several chat services tiled across the whole
+ * stage at once, so the same question can be broadcast to all of them and the
+ * answers compared side by side. Still not an agent — every tile is the same
+ * live web session that the side panel uses, just several on screen together.
+ */
+export interface AiGridState {
+  open: boolean;
+  /** Which services occupy the grid, in tile order (1–4, de-duped). */
+  services: AiService[];
+  /**
+   * Whether the broadcast bar submits after filling each composer (⌘↵ sends to
+   * every tile), or only fills the composer and lets the user press Enter.
+   */
+  broadcastSubmit: boolean;
+}
+
+/** A pinned favorite site inside a lane. Persistent — unlike a page, navigating
+ *  never changes it, so a lane keeps its YouTube pin even as you browse away. */
+export interface Favorite {
+  url: string;
+  title: string;
+  /** Favicon URL captured when pinned; attacker-controlled, render-only. */
+  favicon?: string;
+}
+
+/** A lane: a genre folder of favorite pins. Lanes no longer contain live pages —
+ *  the open pages are one global list (see LaneState.pages), kept separate so a
+ *  lane's pins stay put while you browse. */
 export interface Lane {
   id: string;
   name: string;
   color: string;
-  pages: PageRef[];
-  /** null means the lane is showing the home / "continue reading" screen. */
-  activePageId: string | null;
+  favorites: Favorite[];
+  /** Folded in the sidebar: its pins are hidden until expanded. */
+  collapsed?: boolean;
 }
 
 /** The universal bookmark: reading state remembered per URL, forever. */
@@ -45,6 +85,20 @@ export interface Clip {
   createdAt: number;
 }
 
+/** A single task in the memo panel's TODO list. */
+export interface TodoItem {
+  id: string;
+  text: string;
+  done: boolean;
+  createdAt: number;
+}
+
+/** The memo panel's contents: a TODO list plus a free-form scratchpad. */
+export interface NotesState {
+  todos: TodoItem[];
+  memo: string;
+}
+
 export interface NavState {
   url: string;
   title: string;
@@ -53,15 +107,22 @@ export interface NavState {
   isLoading: boolean;
 }
 
+/** Sidebar state: the favorite lanes plus the single global list of open pages. */
 export interface LaneState {
   lanes: Lane[];
-  activeLaneId: string;
+  pages: PageRef[];
+  activePageId: string | null;
 }
 
 export interface ChromeState {
   lanes: Lane[];
-  activeLaneId: string;
+  pages: PageRef[];
+  activePageId: string | null;
   clipPanelOpen: boolean;
+  notesPanelOpen: boolean;
+  sidebarCollapsed: boolean;
+  ai: AiState;
+  aiGrid: AiGridState;
 }
 
 export interface PageRect {
@@ -69,6 +130,19 @@ export interface PageRect {
   y: number;
   width: number;
   height: number;
+}
+
+/** One tile's measured box in the parallel AI grid, keyed by service. */
+export interface AiGridRect {
+  service: AiService;
+  rect: PageRect;
+}
+
+/** Per-tile outcome of a broadcast, surfaced back to the chrome as a pill. */
+export interface BroadcastResult {
+  service: AiService;
+  /** 'filled' = text went in; 'sent' = also submitted; 'missed' = no composer. */
+  status: 'filled' | 'sent' | 'missed';
 }
 
 /** Live reading-progress tick pushed to the chrome while scrolling. */
@@ -106,20 +180,46 @@ export type InvokeChannel =
   | 'shiori:new-page'
   | 'shiori:close-page'
   | 'shiori:activate-page'
+  | 'shiori:move-page'
   | 'shiori:go-home'
   | 'shiori:new-lane'
   | 'shiori:rename-lane'
   | 'shiori:delete-lane'
-  | 'shiori:activate-lane'
+  | 'shiori:toggle-lane-collapsed'
+  | 'shiori:pin-favorite'
+  | 'shiori:open-favorite'
+  | 'shiori:remove-favorite'
+  | 'shiori:move-favorite'
   | 'shiori:open-bookmark'
   | 'shiori:delete-bookmark'
   | 'shiori:copy-clip'
   | 'shiori:copy-all-clips'
   | 'shiori:delete-clip'
   | 'shiori:clear-clips'
-  | 'shiori:set-clip-panel';
+  | 'shiori:set-clip-panel'
+  | 'shiori:get-notes'
+  | 'shiori:set-notes-panel'
+  | 'shiori:add-todo'
+  | 'shiori:toggle-todo'
+  | 'shiori:delete-todo'
+  | 'shiori:clear-done-todos'
+  | 'shiori:set-memo'
+  | 'shiori:set-sidebar'
+  | 'shiori:ai-open'
+  | 'shiori:ai-close'
+  | 'shiori:ai-reload'
+  | 'shiori:ai-open-as-page'
+  | 'shiori:ai-resize'
+  | 'shiori:ai-grid-open'
+  | 'shiori:ai-grid-close'
+  | 'shiori:ai-grid-toggle'
+  | 'shiori:ai-grid-set-services'
+  | 'shiori:ai-grid-tile-reload'
+  | 'shiori:ai-grid-tile-promote'
+  | 'shiori:ai-grid-set-submit'
+  | 'shiori:ai-broadcast';
 
-export type SendChannel = 'shiori:page-rect';
+export type SendChannel = 'shiori:page-rect' | 'shiori:ai-rect' | 'shiori:ai-grid-rects';
 
 export type EventChannel =
   | 'shiori:lanes'
@@ -127,6 +227,13 @@ export type EventChannel =
   | 'shiori:bookmarks'
   | 'shiori:clips'
   | 'shiori:clip-panel'
+  | 'shiori:notes-panel'
+  | 'shiori:todos'
+  | 'shiori:sidebar'
+  | 'shiori:ai'
+  | 'shiori:ai-grid'
+  | 'shiori:ai-broadcast-result'
+  | 'shiori:fullscreen'
   | 'shiori:progress'
   | 'shiori:focus-urlbar';
 

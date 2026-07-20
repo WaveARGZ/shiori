@@ -1,20 +1,30 @@
+/** URL bar input classified into a real navigation or a search query. */
+export type Intent = { kind: 'url'; url: string } | { kind: 'search'; query: string };
+
 /**
- * URL bar input -> a real URL. Anything that doesn't look like a host or an
- * explicit scheme becomes a web search.
+ * Decide what the URL bar text means. Anything that looks like a host or an
+ * explicit scheme is a navigation; everything else is a search — handled by
+ * Shiori's own search page, never handed off to an outside search engine.
  */
-export function toNavigableUrl(input: string): string | null {
+export function classifyInput(input: string): Intent | null {
   const raw = input.trim();
   if (!raw) return null;
 
-  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(raw) || /^about:/i.test(raw)) return raw;
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(raw) || /^about:/i.test(raw)) return { kind: 'url', url: raw };
 
   const looksLikeHost =
     /^localhost(:\d+)?(\/|$)/i.test(raw) ||
     /^\d{1,3}(\.\d{1,3}){3}(:\d+)?(\/|$)/.test(raw) ||
     (/^[^\s/?#]+\.[a-z]{2,}(:\d+)?([/?#]|$)/i.test(raw) && !raw.includes(' '));
 
-  if (looksLikeHost) return `https://${raw}`;
-  return `https://www.google.com/search?q=${encodeURIComponent(raw)}`;
+  if (looksLikeHost) return { kind: 'url', url: `https://${raw}` };
+  return { kind: 'search', query: raw };
+}
+
+/** A real URL for a bar input, or null if it is a search (not a URL). */
+export function toNavigableUrl(input: string): string | null {
+  const intent = classifyInput(input);
+  return intent && intent.kind === 'url' ? intent.url : null;
 }
 
 /**

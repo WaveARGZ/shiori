@@ -1,0 +1,54 @@
+# Tag-triggered release: push a tag like v0.1.0 (matching package.json's
+# version) and both build jobs upload their installers to ONE draft GitHub
+# release. Publish the draft by hand once every artifact is present.
+#
+# The draft is pre-created in its own job because electron-builder's publisher
+# uses list-then-create with no locking: two matrix jobs racing on first upload
+# can each create a separate draft for the same tag, splitting the artifacts.
+# With the draft already in place, both builders always take the "found
+# existing draft" path.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  create-draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify tag matches package.json version
+        run: node -e "const v='v'+require('./package.json').version; if (v !== process.env.GITHUB_REF_NAME) { console.error('tag '+process.env.GITHUB_REF_NAME+' != package.json '+v); process.exit(1) }"
+      - name: Create draft release (idempotent)
+        run: gh release view "$GITHUB_REF_NAME" --json isDraft >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --draft --verify-tag --title "${GITHUB_REF_NAME#v}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    needs: create-draft
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            args: --mac
+          - os: windows-latest
+            args: --win
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx electron-builder ${{ matrix.args }} --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Unsigned mac build: never probe the runner keychain for identities.
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"

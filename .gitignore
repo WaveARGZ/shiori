@@ -3,3 +3,6 @@ dist/
 dist-electron/
 .DS_Store
 *.log
+# Local/private working files — never commit to the public repo.
+HANDOFF.md
+.claude/

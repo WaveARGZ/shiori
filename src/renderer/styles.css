@@ -1,20 +1,66 @@
-:root {
-  --bg: #101118;
-  --bg-raised: #171926;
-  --bg-chip: #1e2133;
-  --bg-chip-hover: #262a40;
-  --border: #262a3d;
-  --text: #e7e9f3;
-  --text-dim: #9aa0bb;
-  --text-faint: #666d8a;
-  --accent: #7c9cff;
-  --danger: #ff7b9c;
-  --radius: 8px;
+/* 栞 chrome — warm paper & earth tones over macOS vibrancy.
+ *
+ * The window's backgroundColor is fully transparent and the vibrancy material
+ * ('sidebar', forced light via nativeTheme) sits behind this document, so every
+ * rgba() surface below is a tint over live frosted-glass blur. If vibrancy is
+ * unavailable the body tint still reads as a warm cream theme.
+ */
 
-  --topbar-h: 48px;
-  --lanebar-h: 36px;
-  --pagebar-h: 34px;
+:root {
+  --bg: #ede6d8;
+  --tint-body: rgba(240, 234, 223, 0.72);
+  --tint-bar: rgba(252, 249, 243, 0.5);
+  --tint-panel: rgba(249, 245, 238, 0.6);
+  --bg-raised: rgba(74, 54, 30, 0.045);
+  --bg-chip: rgba(74, 54, 30, 0.05);
+  --bg-chip-hover: rgba(74, 54, 30, 0.09);
+  --border: rgba(74, 54, 30, 0.12);
+  --border-strong: rgba(74, 54, 30, 0.2);
+  --input-bg: rgba(255, 253, 249, 0.75);
+  --input-bg-focus: #fffdf9;
+  --ring-track: rgba(74, 54, 30, 0.14);
+  --ring-hole: #f6f1e8;
+  --on-accent: #fffdf9;
+  --good: #6f8f3f;
+  --text: #3a3123;
+  --text-dim: #6b6151;
+  --text-faint: #9a9184;
+  /* Dark espresso rail and its light ink. */
+  --rail: #2d2418;
+  --rail-2: #241d12;
+  --on-rail: #e9e0cf;
+  --on-rail-dim: #9c9280;
+  /* Brand mark, matching the "Outline" app icon: espresso bookmark on a cream
+     tile with an espresso outline. */
+  --brand-ink: #45372a;
+  --brand-paper: #f2ece0;
+  --accent: #9a5f33;
+  --accent-2: #b07a45;
+  --accent-soft: rgba(154, 95, 51, 0.13);
+  --danger: #b4553f;
+  --radius: 10px;
+
+  /* Elevated surfaces (selected rows, floating cards) and their shadows. */
+  --surface: #fffdf9;
+  --shadow-sm: 0 1px 2px rgba(60, 44, 24, 0.08), 0 0 0 1px rgba(60, 44, 24, 0.05);
+  --shadow-md: 0 4px 14px rgba(60, 44, 24, 0.1), 0 0 0 1px rgba(60, 44, 24, 0.05);
+  --shadow-lg: 0 12px 34px rgba(60, 44, 24, 0.16);
+
+  --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Menlo', 'Cascadia Mono', 'Consolas',
+    'Roboto Mono', monospace;
+
+  --topbar-h: 50px;
+  --rail-w: 60px;
+  --status-h: 34px;
+  --sidebar-w: 238px;
   --panel-w: 320px;
+  --ai-w: 400px;
+  --gutter: 8px;
+
+  --c-chatgpt: #0e9d80;
+  --c-gemini: #3f7bf4;
+  --c-claude: #c9663f;
+  --c-perplexity: #1898a9;
 }
 
 * {
@@ -32,9 +78,12 @@ body {
 body {
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  background: var(--tint-body);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  /* macOS resolves the front of the stack; 'Segoe UI'/'Yu Gothic UI'/'Meiryo'
+     are the Windows fallbacks so the JP UI never lands on raster Gothic. */
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Segoe UI', 'Yu Gothic UI',
+    'Meiryo', 'Noto Sans JP', sans-serif;
   font-size: 13px;
   -webkit-font-smoothing: antialiased;
   user-select: none;
@@ -49,6 +98,107 @@ button {
   cursor: default;
 }
 
+.icon-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.hide {
+  display: none !important;
+}
+
+.ic {
+  width: 17px;
+  height: 17px;
+  display: block;
+  pointer-events: none;
+}
+
+.ic.sm {
+  width: 14px;
+  height: 14px;
+}
+
+.ai-ic {
+  width: 17px;
+  height: 17px;
+  display: block;
+  pointer-events: none;
+}
+
+/* -------------------------------------------------------------- icon rail */
+
+#rail {
+  flex: 0 0 auto;
+  width: var(--rail-w);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 0 10px;
+  background: linear-gradient(180deg, var(--rail) 0%, var(--rail-2) 100%);
+  color: var(--on-rail);
+}
+
+.rail-brand {
+  flex: 0 0 auto;
+  margin-bottom: 8px;
+  border-radius: 11px;
+  transition: transform 0.12s ease;
+}
+
+.rail-brand:hover {
+  transform: translateY(-1px);
+}
+
+.rail-brand .brand-tile {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+}
+
+.rail-brand .brand-mark {
+  width: 21px;
+  height: 26px;
+}
+
+.rail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rail-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  color: var(--on-rail-dim);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.rail-btn .ic {
+  width: 20px;
+  height: 20px;
+}
+
+.rail-btn:hover {
+  background: rgba(255, 253, 249, 0.09);
+  color: var(--on-rail);
+}
+
+.rail-btn.active {
+  background: rgba(255, 253, 249, 0.14);
+  color: #fff;
+}
+
+.rail-foot {
+  margin-top: auto;
+}
+
 /* ------------------------------------------------------------------ topbar */
 
 #topbar {
@@ -57,9 +207,12 @@ button {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 10px;
-  background: var(--bg-raised);
+  padding: 0 12px 0 10px;
+  background: var(--tint-bar);
   border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  position: relative;
+  z-index: 5;
   -webkit-app-region: drag;
 }
 
@@ -68,10 +221,37 @@ button {
   -webkit-app-region: no-drag;
 }
 
-/* Room for the macOS traffic lights (titleBarStyle: hiddenInset). */
+/* Room for the macOS traffic lights (titleBarStyle: hiddenInset). On Windows
+   the native frame provides the window controls, so no space is reserved. */
 .traffic-spacer {
   width: 62px;
   flex: 0 0 auto;
+}
+
+body.not-mac .traffic-spacer {
+  display: none;
+}
+
+/* Windows has no auto-hiding overlay scrollbars; restyle the classic ones to
+   match the warm paper theme instead of stock grey rails. macOS untouched. */
+body.not-mac ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+body.not-mac ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body.not-mac ::-webkit-scrollbar-thumb {
+  background: rgba(74, 54, 30, 0.22);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+body.not-mac ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(74, 54, 30, 0.34);
 }
 
 .nav-group {
@@ -81,21 +261,20 @@ button {
 }
 
 .icon-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   color: var(--text-dim);
-  font-size: 17px;
-  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 
 .icon-btn.small {
-  width: 22px;
-  height: 22px;
-  font-size: 14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
 }
 
 .icon-btn:hover:not(:disabled) {
@@ -104,18 +283,19 @@ button {
 }
 
 .icon-btn:disabled {
-  opacity: 0.28;
+  opacity: 0.26;
 }
 
 .home-btn {
   flex: 0 0 auto;
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 9px 0 5px;
+  border-radius: 9px;
   border: 1px solid transparent;
+  transition: background 0.12s ease;
 }
 
 .home-btn:hover,
@@ -124,31 +304,89 @@ button {
   border-color: var(--border);
 }
 
+.brand-word {
+  font-size: 14.5px;
+  font-weight: 650;
+  color: var(--brand-ink);
+  letter-spacing: 0.04em;
+}
+
+/* The app-icon tile, reused as the in-app brand mark: cream tile, espresso
+   outline, espresso bookmark — the "Outline" icon in miniature. */
+.brand-tile {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--brand-paper);
+  color: var(--brand-ink);
+  box-shadow: inset 0 0 0 2px var(--brand-ink), var(--shadow-sm);
+}
+
+.brand-tile .brand-mark {
+  width: 15px;
+  height: 18px;
+  display: block;
+}
+
+.brand-tile.lg {
+  width: 68px;
+  height: 68px;
+  border-radius: 19px;
+  margin: 0 auto 16px;
+  box-shadow: inset 0 0 0 4px var(--brand-ink), 0 10px 26px rgba(50, 38, 24, 0.22);
+}
+
+.brand-tile.lg .brand-mark {
+  width: 36px;
+  height: 44px;
+}
+
 #urlwrap {
   flex: 1 1 auto;
   position: relative;
   display: flex;
   align-items: center;
   min-width: 0;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.url-lock {
+  position: absolute;
+  left: 13px;
+  width: 13px;
+  height: 13px;
+  color: var(--text-faint);
+  pointer-events: none;
 }
 
 #url {
   width: 100%;
-  height: 30px;
-  padding: 0 74px 0 12px;
-  border-radius: 15px;
+  height: 32px;
+  padding: 0 76px 0 34px;
+  border-radius: 16px;
   border: 1px solid var(--border);
-  background: var(--bg-chip);
+  background: var(--input-bg);
   color: var(--text);
-  font-size: 12.5px;
+  font-family: var(--mono);
+  font-size: 12px;
   outline: none;
   user-select: text;
   cursor: text;
+  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+
+#url:hover {
+  background: color-mix(in srgb, var(--input-bg) 100%, #fff 30%);
 }
 
 #url:focus {
-  border-color: var(--accent);
-  background: #12141f;
+  border-color: color-mix(in srgb, var(--accent) 65%, transparent);
+  background: var(--input-bg-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 #url::placeholder {
@@ -158,10 +396,10 @@ button {
 /* Read-progress badge living inside the URL bar. */
 .url-progress {
   position: absolute;
-  right: 8px;
-  padding: 2px 7px;
+  right: 9px;
+  padding: 2px 8px;
   border-radius: 9px;
-  background: rgba(124, 156, 255, 0.16);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
   color: var(--accent);
   font-size: 10.5px;
   font-weight: 600;
@@ -169,14 +407,60 @@ button {
   pointer-events: none;
 }
 
+/* --------------------------------------------------------------- AI dock */
+
+.ai-dock {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--bg-chip);
+  border: 1px solid var(--border);
+}
+
+.ai-btn {
+  width: 28px;
+  height: 26px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s ease, transform 0.12s ease;
+}
+
+.ai-btn[data-service='chatgpt'] {
+  color: var(--c-chatgpt);
+}
+.ai-btn[data-service='gemini'] {
+  color: var(--c-gemini);
+}
+.ai-btn[data-service='claude'] {
+  color: var(--c-claude);
+}
+.ai-btn[data-service='perplexity'] {
+  color: var(--c-perplexity);
+}
+
+.ai-btn:hover {
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.ai-btn.active {
+  background: color-mix(in srgb, currentColor 22%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 45%, transparent);
+}
+
 .clip-btn {
   flex: 0 0 auto;
   position: relative;
-  width: 30px;
-  height: 28px;
-  border-radius: 6px;
+  width: 32px;
+  height: 30px;
+  border-radius: 8px;
   color: var(--text-dim);
   font-size: 15px;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 
 .clip-btn:hover,
@@ -194,166 +478,14 @@ button {
   padding: 0 3px;
   border-radius: 7px;
   background: var(--accent);
-  color: #0d1020;
+  color: var(--on-accent);
   font-size: 9px;
   font-weight: 700;
   line-height: 14px;
   text-align: center;
 }
 
-/* -------------------------------------------------------- lane / page bars */
-
-#lanebar,
-#pagebar {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 10px;
-  background: var(--bg-raised);
-  border-bottom: 1px solid var(--border);
-  overflow: hidden;
-}
-
-#lanebar {
-  height: var(--lanebar-h);
-}
-
-#pagebar {
-  height: var(--pagebar-h);
-  background: #14161f;
-}
-
-.bar-label {
-  flex: 0 0 auto;
-  color: var(--text-faint);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-}
-
-.chips {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.chips::-webkit-scrollbar {
-  display: none;
-}
-
-.chip {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  max-width: 220px;
-  height: 24px;
-  padding: 0 8px;
-  border-radius: 6px;
-  background: var(--bg-chip);
-  color: var(--text-dim);
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.chip:hover {
-  background: var(--bg-chip-hover);
-  color: var(--text);
-}
-
-.chip.active {
-  background: var(--bg-chip-hover);
-  color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--border);
-}
-
-.chip-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex: 0 0 auto;
-}
-
-.chip-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.chip-count {
-  color: var(--text-faint);
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-}
-
-.chip-x {
-  flex: 0 0 auto;
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  color: var(--text-faint);
-  font-size: 12px;
-  line-height: 1;
-  opacity: 0;
-}
-
-.chip:hover .chip-x {
-  opacity: 1;
-}
-
-.chip-x:hover {
-  background: rgba(255, 123, 156, 0.18);
-  color: var(--danger);
-}
-
-/* Read-progress underline on a page chip. */
-.chip-progress {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 2px;
-  background: var(--accent);
-  border-radius: 1px;
-  opacity: 0.7;
-}
-
-.chip.page {
-  position: relative;
-  overflow: hidden;
-}
-
-.chip-input {
-  height: 24px;
-  width: 110px;
-  padding: 0 6px;
-  border-radius: 6px;
-  border: 1px solid var(--accent);
-  background: #0d1020;
-  color: var(--text);
-  font-size: 12px;
-  outline: none;
-  user-select: text;
-}
-
-.add-btn {
-  flex: 0 0 auto;
-  width: 22px;
-  height: 22px;
-  border-radius: 5px;
-  color: var(--text-faint);
-  font-size: 13px;
-  line-height: 1;
-}
-
-.add-btn:hover {
-  background: var(--bg-chip-hover);
-  color: var(--text);
-}
-
-/* -------------------------------------------------------------- body/stage */
+/* -------------------------------------------------------------- body row */
 
 #body {
   flex: 1 1 auto;
@@ -361,40 +493,667 @@ button {
   min-height: 0;
 }
 
+/* -------------------------------------------------------------- sidebar */
+
+#sidebar {
+  flex: 0 0 auto;
+  width: var(--sidebar-w);
+  min-height: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  -webkit-app-region: drag;
+  transition: width 0.16s ease, opacity 0.16s ease;
+}
+
+/* The sidebar is a window-drag region, but its interactive content must not be:
+   a drag region swallows normal clicks (the OS uses them to move the window).
+   Buttons/inputs were covered, but the lane header is a <div> (.lane-head) and
+   its × is a <span> — so the whole favorites/pages lists are made no-drag, or
+   clicking a lane name would drag the window instead of folding it. */
+#sidebar button,
+#sidebar input,
+#lanes,
+#pages {
+  -webkit-app-region: no-drag;
+}
+
+body.sidebar-collapsed #sidebar {
+  width: 0;
+  opacity: 0;
+  border-right: none;
+}
+
+.side-inner {
+  width: var(--sidebar-w);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 12px;
+  gap: 14px;
+}
+
+.side-section {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.side-section.side-pages {
+  flex: 1 1 auto;
+}
+
+.side-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 6px 6px;
+}
+
+.side-label {
+  color: var(--text-faint);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.side-count {
+  flex: 1 1 auto;
+  text-align: right;
+  color: var(--text-faint);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* new-lane "+" sits after the count, not pushed to the far edge. */
+.side-head .side-add {
+  margin-left: 0;
+}
+
+.side-add {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.side-add:hover {
+  background: var(--bg-chip-hover);
+  color: var(--text);
+}
+
+.lane-list,
+.page-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.lane-list::-webkit-scrollbar,
+.page-list::-webkit-scrollbar {
+  display: none;
+}
+
+.lane-list {
+  flex: 0 1 auto;
+  max-height: 44vh;
+  gap: 3px;
+}
+
+.page-list {
+  flex: 1 1 auto;
+}
+
+/* ---- favorites: lane groups (a genre folder + its pins) ------------------- */
+
+.lane-group {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  transition: background 0.12s ease, box-shadow 0.12s ease;
+}
+
+/* Lit up while a page (to pin) or a pin (to move) hovers over the lane. */
+.lane-group.drop-target {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.lane-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 8px 0 4px;
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.12s ease;
+}
+
+.lane-head:hover {
+  background: var(--bg-chip);
+}
+
+.lane-head .chip-label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Disclosure caret (▾ open, ▸ folded). */
+.lane-caret {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  color: var(--text-faint);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.lane-caret .ic {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.14s ease;
+}
+
+.lane-caret:hover {
+  background: var(--bg-chip-hover);
+  color: var(--text);
+}
+
+.lane-group.collapsed .lane-caret .ic {
+  transform: rotate(-90deg);
+}
+
+/* Pins sit indented under their lane header, with a faint rail in the gutter. */
+.lane-pins {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 1px 0 2px 15px;
+  padding-left: 5px;
+  border-left: 1.5px solid var(--border);
+}
+
+.pin {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 29px;
+  padding: 0 8px;
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-size: 12px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background 0.12s ease, color 0.12s ease, transform 0.06s ease;
+}
+
+.pin:hover {
+  background: var(--bg-chip);
+  color: var(--text);
+}
+
+.pin:active {
+  transform: scale(0.985);
+}
+
+.pin.dragging {
+  opacity: 0.45;
+}
+
+.pin-label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The lane delete × stays faintly visible (not hover-only) so a lane can be
+   removed without hunting for a hover target; it strengthens on hover. */
+.lane-head .chip-x {
+  opacity: 0.4;
+}
+
+.lane-head:hover .chip-x,
+.pin:hover .chip-x {
+  opacity: 1;
+}
+
+/* Insertion line for reordering pins. */
+.pin.drop-before::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: -1px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.lane-empty {
+  padding: 3px 8px 5px;
+  color: var(--text-faint);
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+/* Sidebar rows. Kept on the .chip class so the smoke tests' DOM queries
+   (#lanes .chip, #pages .chip) stay valid across the redesign. */
+.chip {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  height: 34px;
+  padding: 0 9px;
+  border-radius: 9px;
+  color: var(--text-dim);
+  font-size: 12.5px;
+  font-weight: 450;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: left;
+  transition: background 0.13s ease, color 0.13s ease, box-shadow 0.13s ease,
+    transform 0.06s ease;
+}
+
+.chip:hover {
+  background: var(--bg-chip);
+  color: var(--text);
+}
+
+.chip:active {
+  transform: scale(0.985);
+}
+
+/* Selected row lifts onto a white card with a coloured accent rail — the
+   Arc/Safari-sidebar cue that reads as "you are here" without a heavy border. */
+.chip.active {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 550;
+  box-shadow: var(--shadow-sm);
+}
+
+.chip.active::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.chip.lane.active::before {
+  background: var(--lane-color, var(--accent));
+}
+
+.chip-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.chip-label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chip-count {
+  flex: 0 0 auto;
+  color: var(--text-faint);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.chip-x {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  color: var(--text-faint);
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.chip:hover .chip-x {
+  opacity: 1;
+}
+
+.chip-x:hover {
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+  color: var(--danger);
+}
+
+/* Favicon (or its tinted letter fallback) on a page row. */
+.fav {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  border-radius: 5px;
+  box-shadow: 0 0 0 1px rgba(20, 24, 40, 0.06);
+  object-fit: cover;
+  background: #fff;
+}
+
+.fav-fallback {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 1px 1.5px rgba(20, 24, 40, 0.18);
+}
+
+/* --- drag & drop feedback -------------------------------------------------- */
+
+.chip.dragging {
+  opacity: 0.45;
+}
+
+/* A lane lit up as the drop destination for a page being dragged in. */
+.chip.lane.drop-target {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+  color: var(--text);
+}
+
+/* Insertion line for reordering pages within a lane. */
+.chip.page.drop-before::after,
+.chip.page.drop-after::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.chip.page.drop-before::after {
+  top: -2px;
+}
+
+.chip.page.drop-after::after {
+  bottom: -2px;
+}
+
+/* Read-progress underline on a page row. */
+.chip-progress {
+  position: absolute;
+  left: 8px;
+  bottom: 2px;
+  height: 2px;
+  max-width: calc(100% - 16px);
+  background: var(--accent);
+  border-radius: 1px;
+  opacity: 0.65;
+}
+
+.chip-input {
+  height: 30px;
+  width: 100%;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  background: var(--input-bg-focus);
+  color: var(--text);
+  font-size: 12.5px;
+  outline: none;
+  user-select: text;
+}
+
+.new-page-row {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  margin-top: 2px;
+  padding: 0 8px;
+  border-radius: 8px;
+  color: var(--text-faint);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.new-page-row:hover {
+  background: var(--bg-chip);
+  color: var(--text);
+}
+
+/* -------------------------------------------------------------- stage */
+
 #stage {
   flex: 1 1 auto;
   position: relative;
   min-width: 0;
-  background: var(--bg);
+}
+
+/* The exact box the page's WebContentsView is laid over. Inset from the
+   window edges so the (un-roundable) native view never touches the window's
+   rounded corners, and the chrome keeps a slim glass frame around the page. */
+#page-host {
+  position: absolute;
+  inset: var(--gutter);
+  top: 6px;
+  border-radius: 12px;
+  background: rgba(20, 24, 40, 0.02);
+  box-shadow: 0 6px 22px rgba(20, 24, 40, 0.08), inset 0 0 0 1px var(--border);
 }
 
 #home {
   position: absolute;
-  inset: 0;
+  inset: var(--gutter);
+  top: 6px;
+  border-radius: 12px;
+  /* A warm paper surface (solid, so scrolling never shifts the colour). */
+  background: #f5efe4;
+  box-shadow: 0 6px 22px rgba(60, 44, 24, 0.08), inset 0 0 0 1px var(--border);
   overflow-y: auto;
-  padding: 44px 32px 60px;
+  padding: 52px 44px 60px;
+}
+
+/* A quiet entrance whenever home comes into view (app launch, or returning
+   from a page). #home toggles the [hidden] attribute, so display flips
+   none→block and these animations replay each time — but not on the frequent
+   renderNav ticks that leave home already visible. */
+@keyframes home-rise {
+  from {
+    opacity: 0;
+    transform: translateY(11px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes home-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.86) translateY(6px);
+  }
+  62% {
+    transform: scale(1.04) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+#home:not([hidden]) .brand-tile.lg {
+  animation: home-pop 0.52s cubic-bezier(0.22, 0.9, 0.3, 1.2) both;
+}
+#home:not([hidden]) .home-title {
+  animation: home-rise 0.5s ease 0.05s both;
+}
+#home:not([hidden]) .home-sub {
+  animation: home-rise 0.5s ease 0.1s both;
+}
+#home:not([hidden]) .home-search {
+  animation: home-rise 0.52s ease 0.16s both;
+}
+/* The two section headers + their content, gently cascading in after the hero. */
+#home:not([hidden]) .home-list-head {
+  animation: home-rise 0.5s ease 0.22s both;
+}
+#home:not([hidden]) .home-ai-grid {
+  animation: home-rise 0.5s ease 0.28s both;
+}
+#home:not([hidden]) .home-ai-card {
+  animation: home-rise 0.46s ease both;
+}
+#home:not([hidden]) .home-ai-card:nth-child(1) {
+  animation-delay: 0.3s;
+}
+#home:not([hidden]) .home-ai-card:nth-child(2) {
+  animation-delay: 0.35s;
+}
+#home:not([hidden]) .home-ai-card:nth-child(3) {
+  animation-delay: 0.4s;
+}
+#home:not([hidden]) .home-ai-card:nth-child(4) {
+  animation-delay: 0.45s;
+}
+#home:not([hidden]) .home-ai-grid + .home-list-head {
+  animation: home-rise 0.5s ease 0.36s both;
+}
+#home:not([hidden]) .reading-list,
+#home:not([hidden]) #home-empty {
+  animation: home-rise 0.5s ease 0.42s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #home:not([hidden]) .brand-tile.lg,
+  #home:not([hidden]) .home-title,
+  #home:not([hidden]) .home-sub,
+  #home:not([hidden]) .home-search,
+  #home:not([hidden]) .home-list-head,
+  #home:not([hidden]) .home-ai-grid,
+  #home:not([hidden]) .home-ai-card,
+  #home:not([hidden]) .reading-list,
+  #home:not([hidden]) #home-empty {
+    animation: none;
+  }
+}
+
+/* Centered hero: title + subtitle + the main search box. */
+.home-hero {
+  text-align: center;
+  padding: 26px 0 14px;
+}
+
+.home-search {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  max-width: 560px;
+  margin: 26px auto 0;
+  height: 54px;
+  padding: 0 18px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  text-align: left;
+  transition: box-shadow 0.14s ease, border-color 0.14s ease;
+}
+
+.home-search:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow-md);
+}
+
+.home-search-ic {
+  flex: 0 0 auto;
+  width: 19px;
+  height: 19px;
+  color: var(--text-faint);
+}
+
+.home-search:focus-within .home-search-ic {
+  color: var(--accent);
+}
+
+#home-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  background: none;
+  outline: none;
+  color: var(--text);
+  font-size: 15px;
+  user-select: text;
+  cursor: text;
+}
+
+#home-search::placeholder {
+  color: var(--text-faint);
 }
 
 #home-inner {
-  max-width: 660px;
+  max-width: 680px;
   margin: 0 auto;
 }
 
 .home-title {
+  font-family: var(--mono);
   font-size: 40px;
-  font-weight: 300;
-  letter-spacing: 0.12em;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   color: var(--text);
 }
 
 .home-sub {
-  margin-top: 6px;
+  margin-top: 8px;
   color: var(--text-faint);
-  font-size: 12.5px;
+  font-size: 13px;
 }
 
 .home-list-head {
-  margin-top: 40px;
+  margin-top: 38px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -403,9 +1162,9 @@ button {
 }
 
 .home-list-head h2 {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   color: var(--text-dim);
 }
 
@@ -415,6 +1174,60 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
+/* AI quick access on the home screen. */
+.home-ai-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.home-ai-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 15px;
+  border-radius: 13px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 550;
+  transition: box-shadow 0.14s ease, transform 0.14s ease, color 0.14s ease;
+}
+
+.home-ai-card .ai-ic {
+  width: 20px;
+  height: 20px;
+}
+
+.home-ai-card[data-service='chatgpt'] .ai-ic {
+  color: var(--c-chatgpt);
+}
+.home-ai-card[data-service='gemini'] .ai-ic {
+  color: var(--c-gemini);
+}
+.home-ai-card[data-service='claude'] .ai-ic {
+  color: var(--c-claude);
+}
+.home-ai-card[data-service='perplexity'] .ai-ic {
+  color: var(--c-perplexity);
+}
+
+.home-ai-card:hover {
+  box-shadow: var(--shadow-md);
+  color: var(--text);
+  transform: translateY(-2px);
+}
+
+.home-ai-card:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ------------------------------------------------------- reading list */
+
 .reading-list {
   list-style: none;
 }
@@ -423,9 +1236,10 @@ button {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 10px;
-  margin: 0 -10px;
+  padding: 12px 12px;
+  margin: 4px -12px 0;
   border-radius: var(--radius);
+  transition: background 0.1s ease;
 }
 
 .read-row:hover {
@@ -446,17 +1260,13 @@ button {
   width: 27px;
   height: 27px;
   border-radius: 50%;
-  background: var(--bg);
+  background: var(--ring-hole);
   display: grid;
   place-items: center;
   font-size: 9.5px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--text-dim);
-}
-
-.read-row:hover .read-ring-inner {
-  background: var(--bg-raised);
 }
 
 .read-main {
@@ -507,7 +1317,7 @@ button {
 }
 
 .read-x:hover {
-  background: rgba(255, 123, 156, 0.18);
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
   color: var(--danger);
 }
 
@@ -523,36 +1333,53 @@ button {
   font-size: 11.5px;
 }
 
-/* -------------------------------------------------------------- clip panel */
+/* -------------------------------------------------------------- panels */
 
-#clip-panel {
-  flex: 0 0 var(--panel-w);
-  width: var(--panel-w);
+#clip-panel,
+#ai-panel,
+#notes-panel {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  background: var(--bg-raised);
+  background: var(--tint-panel);
   border-left: 1px solid var(--border);
+  box-shadow: -10px 0 30px rgba(20, 24, 40, 0.06);
   min-height: 0;
+  position: relative;
+  z-index: 4;
 }
 
-#clip-panel[hidden] {
+#clip-panel,
+#notes-panel {
+  width: var(--panel-w);
+}
+
+#ai-panel {
+  position: relative;
+  width: var(--ai-w);
+}
+
+#clip-panel[hidden],
+#ai-panel[hidden],
+#notes-panel[hidden] {
   display: none;
 }
 
 .panel-head {
   flex: 0 0 auto;
-  height: 38px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 8px 0 14px;
+  gap: 8px;
+  padding: 0 10px 0 14px;
   border-bottom: 1px solid var(--border);
 }
 
 .panel-head h2 {
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   color: var(--text-dim);
 }
 
@@ -563,9 +1390,9 @@ button {
 }
 
 .text-btn {
-  height: 22px;
-  padding: 0 7px;
-  border-radius: 5px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
   color: var(--text-faint);
   font-size: 11px;
 }
@@ -576,15 +1403,130 @@ button {
 }
 
 .text-btn.danger:hover {
-  background: rgba(255, 123, 156, 0.15);
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
   color: var(--danger);
 }
+
+/* ------------------------------------------------------------ AI panel */
+
+.ai-head {
+  padding-left: 8px;
+}
+
+.ai-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ai-tab {
+  width: 30px;
+  height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.ai-tab[data-service='chatgpt']:hover,
+.ai-tab[data-service='chatgpt'].active {
+  color: var(--c-chatgpt);
+}
+.ai-tab[data-service='gemini']:hover,
+.ai-tab[data-service='gemini'].active {
+  color: var(--c-gemini);
+}
+.ai-tab[data-service='claude']:hover,
+.ai-tab[data-service='claude'].active {
+  color: var(--c-claude);
+}
+.ai-tab[data-service='perplexity']:hover,
+.ai-tab[data-service='perplexity'].active {
+  color: var(--c-perplexity);
+}
+
+.ai-tab:hover {
+  background: var(--bg-chip);
+}
+
+.ai-tab.active {
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 40%, transparent);
+}
+
+.ai-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+/* The exact box the AI WebContentsView is laid over. */
+#ai-stage {
+  flex: 1 1 auto;
+  position: relative;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+.ai-hint {
+  color: var(--text-faint);
+  font-size: 12px;
+}
+
+/* Sits just left of the panel border: the AI WebContentsView floats above the
+   chrome inside the panel, so the grab strip must live where the chrome still
+   receives mouse events (the page gutter is 8px, leaving room for 7px). */
+#ai-resizer {
+  position: absolute;
+  left: -7px;
+  top: 0;
+  bottom: 0;
+  width: 7px;
+  cursor: col-resize;
+  z-index: 10;
+}
+
+#ai-resizer:hover,
+body.resizing #ai-resizer {
+  background: linear-gradient(
+    to right,
+    transparent 0,
+    transparent 2px,
+    color-mix(in srgb, var(--accent) 55%, transparent) 2px,
+    color-mix(in srgb, var(--accent) 55%, transparent) 5px,
+    transparent 5px
+  );
+}
+
+body.resizing {
+  cursor: col-resize;
+}
+
+body.resizing #ai-stage .ai-hint {
+  visibility: hidden;
+}
+
+/* ---------------------------------------------------------- clip panel */
 
 .clip-list {
   flex: 1 1 auto;
   list-style: none;
   overflow-y: auto;
   padding: 8px;
+}
+
+/* With no clips, let the hint sit under the header instead of the far bottom. */
+.clip-list:empty {
+  flex: 0 0 auto;
+  padding: 0;
 }
 
 .clip-card {
@@ -645,5 +1587,610 @@ button {
 }
 
 .copied {
-  color: #7ee787 !important;
+  color: var(--good) !important;
+}
+
+/* ------------------------------------------------------------- memo panel */
+
+.notes-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.notes-tab {
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 7px;
+  color: var(--text-faint);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.notes-tab:hover {
+  background: var(--bg-chip);
+  color: var(--text-dim);
+}
+
+.notes-tab.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+.notes-view {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.notes-view[hidden] {
+  display: none;
+}
+
+/* --- TODO --- */
+
+.todo-add {
+  flex: 0 0 auto;
+  padding: 10px 10px 8px;
+}
+
+#todo-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: 12.5px;
+  outline: none;
+  user-select: text;
+  cursor: text;
+  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+
+#todo-input:focus {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: var(--input-bg-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+#todo-input::placeholder {
+  color: var(--text-faint);
+}
+
+.todo-list {
+  flex: 1 1 auto;
+  list-style: none;
+  overflow-y: auto;
+  padding: 0 8px;
+}
+
+.todo-list:empty {
+  flex: 0 0 auto;
+}
+
+.todo-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  transition: background 0.1s ease;
+}
+
+.todo-item:hover {
+  background: var(--bg-raised);
+}
+
+/* Round checkbox that fills with the accent when done. */
+.todo-check {
+  position: relative;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.6px var(--border-strong);
+  transition: box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.todo-check:hover {
+  box-shadow: inset 0 0 0 1.6px var(--accent);
+}
+
+.todo-item.done .todo-check {
+  background: var(--accent);
+  box-shadow: inset 0 0 0 1.6px var(--accent);
+}
+
+/* A check mark: the classic rotated rectangle with two borders. */
+.todo-item.done .todo-check::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 3px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--on-accent);
+  border-width: 0 1.8px 1.8px 0;
+  transform: rotate(45deg);
+}
+
+.todo-text {
+  flex: 1 1 auto;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--text);
+  user-select: text;
+  cursor: text;
+  word-break: break-word;
+}
+
+.todo-item.done .todo-text {
+  color: var(--text-faint);
+  text-decoration: line-through;
+}
+
+.todo-del {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  color: var(--text-faint);
+  font-size: 13px;
+  line-height: 20px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.1s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.todo-item:hover .todo-del {
+  opacity: 1;
+}
+
+.todo-del:hover {
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  color: var(--danger);
+}
+
+.notes-foot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px 10px;
+  border-top: 1px solid var(--border);
+}
+
+.notes-count {
+  color: var(--text-faint);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- free memo --- */
+
+#memo-input {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 14px;
+  border: none;
+  background: none;
+  resize: none;
+  outline: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.7;
+  user-select: text;
+  cursor: text;
+}
+
+#memo-input::placeholder {
+  color: var(--text-faint);
+}
+
+/* ----------------------------------------------------------- status bar */
+
+#statusbar {
+  flex: 0 0 auto;
+  height: var(--status-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px 0 14px;
+  background: var(--tint-bar);
+  border-top: 1px solid var(--border);
+  color: var(--text-faint);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  -webkit-app-region: drag;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.status-conn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-dim);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--good) 22%, transparent);
+}
+
+#statusbar.offline .status-dot {
+  background: var(--text-faint);
+  box-shadow: none;
+}
+
+.status-sep {
+  opacity: 0.5;
+}
+
+.status-counts {
+  font-variant-numeric: tabular-nums;
+}
+
+.status-read {
+  flex: 0 0 auto;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------- parallel AI grid */
+
+/* Home-screen link into the grid. */
+.head-link {
+  padding: 2px 5px;
+  border-radius: 6px;
+  color: var(--accent);
+  font-size: 11.5px;
+  font-weight: 600;
+  transition: background 0.12s ease;
+}
+
+.head-link:hover {
+  background: var(--accent-soft);
+}
+
+/* The grid occupies the exact box #page-host / #home use, and swaps in for
+   them via body.ai-grid (the same show/hide trick body.fullscreen uses). */
+#ai-grid {
+  position: absolute;
+  inset: var(--gutter);
+  top: 6px;
+  border-radius: 12px;
+  /* Warm paper, solid — it shows through the 6px gaps between tiles, so the
+     seams never reveal a transparent glass hole. */
+  background: #f5efe4;
+  box-shadow: 0 6px 22px rgba(60, 44, 24, 0.08), inset 0 0 0 1px var(--border);
+  /* The native tile views cannot follow a scroll, so the grid never scrolls —
+     tiles shrink to fit instead. */
+  overflow: hidden;
+  display: none;
+  flex-direction: column;
+}
+
+body.ai-grid #ai-grid {
+  display: flex;
+}
+
+body.ai-grid #home,
+body.ai-grid #page-host {
+  display: none;
+}
+
+.grid-toolbar {
+  flex: 0 0 auto;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 0 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--tint-bar);
+}
+
+.grid-title {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.grid-services {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+}
+
+/* A chip per service; "on" = present in the grid. */
+.grid-service-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-faint);
+  font-size: 11.5px;
+  font-weight: 550;
+  white-space: nowrap;
+  transition: color 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.grid-service-chip .ai-ic {
+  width: 15px;
+  height: 15px;
+  opacity: 0.45;
+}
+
+.grid-service-chip:hover {
+  color: var(--text);
+}
+
+.grid-service-chip.on {
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--svc) 45%, transparent);
+}
+
+.grid-service-chip.on .ai-ic {
+  color: var(--svc);
+  opacity: 1;
+}
+
+.ai-tiles {
+  flex: 1 1 auto;
+  display: grid;
+  gap: 6px;
+  padding: 6px;
+  min-height: 0;
+}
+
+.ai-tiles[data-count='1'] {
+  grid-template-columns: 1fr;
+}
+
+.ai-tiles[data-count='2'] {
+  grid-template-columns: 1fr 1fr;
+}
+
+.ai-tiles[data-count='3'] {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.ai-tiles[data-count='4'] {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.ai-tile {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 11px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.ai-tile-head {
+  flex: 0 0 auto;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px 0 11px;
+  border-top: 2px solid var(--svc, var(--accent));
+  border-bottom: 1px solid var(--border);
+  background: var(--tint-bar);
+}
+
+.ai-tile-head .ai-ic {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  color: var(--svc, var(--text-dim));
+}
+
+.ai-tile-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-tile-actions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.ai-tile:hover .ai-tile-actions {
+  opacity: 1;
+}
+
+.tile-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  color: var(--text-faint);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.tile-btn:hover {
+  background: var(--bg-chip-hover);
+  color: var(--text);
+}
+
+/* The exact box each tile's WebContentsView is laid over. */
+.ai-tile-stage {
+  flex: 1 1 auto;
+  position: relative;
+  min-height: 0;
+  background: #fff;
+  display: grid;
+  place-items: center;
+}
+
+/* Broadcast bar: one prompt, fanned to every tile's composer. Plain chrome, not
+   a view, so it stays clickable below the tiles. */
+.ai-broadcast {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--border);
+  background: var(--tint-bar);
+}
+
+.broadcast-field {
+  flex: 1 1 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.broadcast-ic {
+  position: absolute;
+  left: 12px;
+  width: 15px;
+  height: 15px;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+
+#broadcast-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 14px 0 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  user-select: text;
+  cursor: text;
+  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+
+#broadcast-input:focus {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: var(--input-bg-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+#broadcast-input::placeholder {
+  color: var(--text-faint);
+}
+
+.broadcast-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 2px;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  user-select: none;
+}
+
+.broadcast-toggle input {
+  accent-color: var(--accent);
+}
+
+.broadcast-send {
+  flex: 0 0 auto;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: background 0.12s ease, transform 0.06s ease;
+}
+
+.broadcast-send:hover {
+  background: var(--accent-2);
+}
+
+.broadcast-send:active {
+  transform: scale(0.98);
+}
+
+/* "入力だけ" mode: the send button reads as secondary, not a primary send. */
+.ai-broadcast.fill-only .broadcast-send {
+  background: var(--bg-chip-hover);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.broadcast-send.copied {
+  background: var(--good);
+  color: #fff;
+}
+
+/* --------------------------------------------------------- page fullscreen */
+/* A video went fullscreen: hide every piece of chrome and let the page view
+   (which tracks #page-host) fill the entire window, edge to edge. */
+body.fullscreen #topbar,
+body.fullscreen #rail,
+body.fullscreen #sidebar,
+body.fullscreen #statusbar,
+body.fullscreen #clip-panel,
+body.fullscreen #ai-panel,
+body.fullscreen #notes-panel,
+body.fullscreen #ai-grid {
+  display: none !important;
+}
+
+body.fullscreen #page-host {
+  inset: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #000;
 }

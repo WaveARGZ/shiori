@@ -2,12 +2,18 @@
   "name": "shiori",
   "version": "0.1.0",
   "description": "栞 — a browser that manages what you were in the middle of, not where you were.",
-  "author": "Shiori",
+  "author": {
+    "name": "WaveARGZ"
+  },
   "license": "MIT",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WaveARGZ/shiori.git"
+  },
   "main": "dist-electron/main/index.js",
   "scripts": {
-    "clean": "rm -rf dist dist-electron",
+    "clean": "node -e \"for(const d of ['dist','dist-electron'])require('fs').rmSync(d,{recursive:true,force:true})\"",
     "build:main": "tsc -p tsconfig.main.json",
     "build:renderer": "tsc -p tsconfig.renderer.json",
     "check:renderer": "node scripts/check-renderer.mjs",
@@ -18,7 +24,8 @@
     "smoke:fresh": "SHIORI_SMOKE=1 electron .",
     "smoke:restart": "SHIORI_SMOKE=restart electron .",
     "smoke": "npm run build && npm run smoke:fresh && npm run smoke:restart",
-    "dist": "npm run build && electron-builder --mac"
+    "dist": "npm run build && electron-builder --mac",
+    "dist:win": "npm run build && electron-builder --win"
   },
   "dependencies": {
     "electron-store": "8.2.0"

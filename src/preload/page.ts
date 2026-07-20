@@ -43,13 +43,28 @@ function measure(): ScrollReport {
   return { scrollY, progress, docHeight };
 }
 
+let lastSent: ScrollReport | null = null;
+
 function report(): void {
   // While restoring, the document is still growing and window.scrollY is
   // clamped to a too-small maximum. Reporting now would overwrite the very
   // position we are trying to return to.
   if (restoring) return;
   lastReportAt = Date.now();
-  ipcRenderer.send('shiori-page:scroll', measure());
+  const m = measure();
+  // Inner-element scrolling (chat panes, code blocks) bubbles here in the
+  // capture phase without moving window.scrollY at all; an identical report
+  // would only cost an IPC round-trip + a store upsert for nothing.
+  if (
+    lastSent &&
+    lastSent.scrollY === m.scrollY &&
+    lastSent.progress === m.progress &&
+    lastSent.docHeight === m.docHeight
+  ) {
+    return;
+  }
+  lastSent = m;
+  ipcRenderer.send('shiori-page:scroll', m);
 }
 
 function onScroll(): void {
@@ -80,11 +95,14 @@ ipcRenderer.on('shiori-page:restore', (_event, targetY: number) => {
   restoring = true;
 
   const stop = (): void => {
-    if (token !== restoreToken) return;
-    restoring = false;
+    // Always drop this restore's own listeners first: if a newer restore has
+    // already taken over (token advanced), returning early before removal
+    // would leak these four capture listeners on every reload.
     for (const type of ['wheel', 'touchstart', 'keydown', 'mousedown'] as const) {
       window.removeEventListener(type, stop, true);
     }
+    if (token !== restoreToken) return;
+    restoring = false;
     report();
   };
 

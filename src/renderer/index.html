@@ -4,23 +4,255 @@
     <meta charset="utf-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:;"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: https: http:;"
     />
     <title>栞</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <!-- Shared icon set. Brand marks are simplified hand-drawn approximations;
+         tinting comes from CSS via currentColor. -->
+    <svg class="icon-defs" aria-hidden="true">
+      <symbol id="i-back" viewBox="0 0 24 24">
+        <path
+          d="M14.5 5.5 8 12l6.5 6.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </symbol>
+      <symbol id="i-forward" viewBox="0 0 24 24">
+        <path
+          d="M9.5 5.5 16 12l-6.5 6.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </symbol>
+      <symbol id="i-reload" viewBox="0 0 24 24">
+        <path
+          d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+        <path
+          d="M19.7 3.6v4h-4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </symbol>
+      <symbol id="i-stop" viewBox="0 0 24 24">
+        <path
+          d="M7 7l10 10M17 7 7 17"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </symbol>
+      <symbol id="i-sidebar" viewBox="0 0 24 24">
+        <rect
+          x="3.5"
+          y="5"
+          width="17"
+          height="14"
+          rx="2.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+        />
+        <path d="M9.5 5v14" fill="none" stroke="currentColor" stroke-width="1.8" />
+      </symbol>
+      <symbol id="i-external" viewBox="0 0 24 24">
+        <path
+          d="M10 5H5.8A1.8 1.8 0 0 0 4 6.8v11.4A1.8 1.8 0 0 0 5.8 20h11.4a1.8 1.8 0 0 0 1.8-1.8V14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+        />
+        <path
+          d="M14 4h6v6M20 4 11 13"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24">
+        <path
+          d="M12 5.5v13M5.5 12h13"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </symbol>
+      <symbol id="i-close" viewBox="0 0 24 24">
+        <path
+          d="M6.5 6.5l11 11M17.5 6.5l-11 11"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+        />
+      </symbol>
+      <symbol id="i-search" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.9" />
+        <path
+          d="M20 20l-4.2-4.2"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.9"
+          stroke-linecap="round"
+        />
+      </symbol>
+      <!-- The Shiori brand mark: a solid bookmark (栞). Kept in sync with the
+           app icon (scripts/render-icon.js) and search.ts (LOGO_SVG). -->
+      <symbol id="i-logo" viewBox="0 0 120 150">
+        <path
+          d="M22 24 Q22 12 34 12 L86 12 Q98 12 98 24 L98 134 L60 102 L22 134 Z"
+          fill="currentColor"
+        />
+      </symbol>
+      <symbol id="i-chatgpt" viewBox="0 0 24 24">
+        <path
+          d="M12 2.9 19.8 7.4v9.2L12 21.1 4.2 16.6V7.4z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linejoin="round"
+        />
+        <path
+          d="m12 7.4 4 2.3v4.6l-4 2.3-4-2.3V9.7z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linejoin="round"
+          transform="rotate(30 12 12)"
+        />
+      </symbol>
+      <symbol id="i-gemini" viewBox="0 0 24 24">
+        <path
+          d="M12 2c.62 5.44 4.56 9.38 10 10-5.44.62-9.38 4.56-10 10-.62-5.44-4.56-9.38-10-10 5.44-.62 9.38-4.56 10-10z"
+          fill="currentColor"
+        />
+      </symbol>
+      <symbol id="i-claude" viewBox="0 0 24 24">
+        <g stroke="currentColor" stroke-width="2.1" stroke-linecap="round">
+          <path d="M12 2.6v4.6M12 16.8v4.6M2.6 12h4.6M16.8 12h4.6" />
+          <path d="m5.4 5.4 3.2 3.2M15.4 15.4l3.2 3.2M18.6 5.4l-3.2 3.2M5.4 18.6l3.2-3.2" />
+        </g>
+      </symbol>
+      <symbol id="i-perplexity" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
+          <path d="M12 2.5v19" />
+          <path d="M4.5 7.5 10 12l-5.5 4.5zM19.5 7.5 14 12l5.5 4.5z" />
+          <path d="M4.5 7.5h15" />
+        </g>
+      </symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24">
+        <rect x="5" y="10.5" width="14" height="9.5" rx="2.2" fill="currentColor" />
+        <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+      </symbol>
+      <symbol id="i-clip" viewBox="0 0 24 24">
+        <path
+          d="M8.5 6.5v8a3.5 3.5 0 0 0 7 0V6a2.4 2.4 0 0 0-4.8 0v8.4a1.3 1.3 0 0 0 2.6 0V7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8" />
+        <path
+          d="M12 7.5V12l3 2"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </symbol>
+      <symbol id="i-gear" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8" />
+        <path
+          d="M12 3.5v2.2M12 18.3v2.2M20.5 12h-2.2M5.7 12H3.5M18 6l-1.6 1.6M7.6 16.4 6 18M18 18l-1.6-1.6M7.6 7.6 6 6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+        />
+      </symbol>
+      <!-- 2×2 tiles: the parallel-AI mark. -->
+      <symbol id="i-grid" viewBox="0 0 24 24">
+        <rect x="3.5" y="3.5" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8" />
+        <rect x="13.5" y="3.5" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8" />
+        <rect x="3.5" y="13.5" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8" />
+        <rect x="13.5" y="13.5" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8" />
+      </symbol>
+      <symbol id="i-caret" viewBox="0 0 24 24">
+        <path
+          d="M8 10l4 4 4-4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </symbol>
+      <!-- Checklist: a checked line over two plain lines — the memo mark. -->
+      <symbol id="i-note" viewBox="0 0 24 24">
+        <path
+          d="M3.8 6l1.5 1.5L8 4.4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path d="M11 6h9M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+      </symbol>
+      <symbol id="i-send" viewBox="0 0 24 24">
+        <path
+          d="M4 11.5 20 4l-7.5 16-2.2-6.3z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linejoin="round"
+        />
+        <path d="M10.3 13.7 20 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+      </symbol>
+    </svg>
+
     <header id="topbar">
       <div class="traffic-spacer"></div>
       <div class="nav-group">
-        <button id="btn-back" class="icon-btn" title="戻る (⌘[)" aria-label="戻る">‹</button>
-        <button id="btn-forward" class="icon-btn" title="進む (⌘])" aria-label="進む">›</button>
+        <button id="btn-back" class="icon-btn" title="戻る (⌘[)" aria-label="戻る">
+          <svg class="ic"><use href="#i-back" /></svg>
+        </button>
+        <button id="btn-forward" class="icon-btn" title="進む (⌘])" aria-label="進む">
+          <svg class="ic"><use href="#i-forward" /></svg>
+        </button>
         <button id="btn-reload" class="icon-btn" title="再読み込み (⌘R)" aria-label="再読み込み">
-          ⟳
+          <svg class="ic" id="ic-reload"><use href="#i-reload" /></svg>
+          <svg class="ic hide" id="ic-stop"><use href="#i-stop" /></svg>
         </button>
       </div>
-      <button id="btn-home" class="home-btn" title="続きから読む (⌘T)">栞</button>
       <div id="urlwrap">
+        <svg class="url-lock"><use href="#i-lock" /></svg>
         <input
           id="url"
           type="text"
@@ -30,33 +262,128 @@
         />
         <span id="url-progress" class="url-progress" hidden></span>
       </div>
+      <div class="ai-dock" role="group" aria-label="AIクイックアクセス">
+        <button class="ai-btn" data-service="chatgpt" title="ChatGPT (⌥⌘1)">
+          <svg class="ai-ic"><use href="#i-chatgpt" /></svg>
+        </button>
+        <button class="ai-btn" data-service="gemini" title="Gemini (⌥⌘2)">
+          <svg class="ai-ic"><use href="#i-gemini" /></svg>
+        </button>
+        <button class="ai-btn" data-service="claude" title="Claude (⌥⌘3)">
+          <svg class="ai-ic"><use href="#i-claude" /></svg>
+        </button>
+        <button class="ai-btn" data-service="perplexity" title="Perplexity (⌥⌘4)">
+          <svg class="ai-ic"><use href="#i-perplexity" /></svg>
+        </button>
+      </div>
       <button id="btn-clips" class="clip-btn" title="出典つきクリップ">
         <span class="clip-icon">❝</span>
         <span id="clip-count" class="clip-count" hidden>0</span>
       </button>
     </header>
 
-    <nav id="lanebar">
-      <span class="bar-label">レーン</span>
-      <div id="lanes" class="chips"></div>
-      <button id="btn-new-lane" class="add-btn" title="新しいレーン (⌘⇧N)">＋</button>
-    </nav>
-
-    <nav id="pagebar">
-      <span class="bar-label">ページ</span>
-      <div id="pages" class="chips"></div>
-      <button id="btn-new-page" class="add-btn" title="新しいページ (⌘T)">＋</button>
-    </nav>
-
     <main id="body">
+      <nav id="rail" aria-label="ツール">
+        <button id="btn-home" class="rail-brand" title="続きから読む (⌘T)">
+          <span class="brand-tile"><svg class="brand-mark"><use href="#i-logo" /></svg></span>
+        </button>
+        <div class="rail-group">
+          <button id="btn-sidebar" class="rail-btn" title="サイドバー (⌘⇧B)" aria-label="サイドバー">
+            <svg class="ic"><use href="#i-sidebar" /></svg>
+          </button>
+          <button id="rail-clips" class="rail-btn" title="クリップ" aria-label="クリップ">
+            <svg class="ic"><use href="#i-clip" /></svg>
+          </button>
+          <button id="rail-notes" class="rail-btn" title="メモ (⌘⇧M)" aria-label="メモ">
+            <svg class="ic"><use href="#i-note" /></svg>
+          </button>
+          <button id="rail-ai" class="rail-btn" title="AIパネル (⌘⇧A)" aria-label="AIパネル">
+            <svg class="ic"><use href="#i-gemini" /></svg>
+          </button>
+          <button id="rail-grid" class="rail-btn" title="並列AIモード (⌘⇧G)" aria-label="並列AIモード">
+            <svg class="ic"><use href="#i-grid" /></svg>
+          </button>
+          <button id="rail-history" class="rail-btn" title="続きから読む (⌘T)" aria-label="続きから読む">
+            <svg class="ic"><use href="#i-clock" /></svg>
+          </button>
+        </div>
+        <button id="rail-settings" class="rail-btn rail-foot" title="表示を切り替え" aria-label="表示を切り替え">
+          <svg class="ic"><use href="#i-gear" /></svg>
+        </button>
+      </nav>
+
+      <aside id="sidebar">
+        <div class="side-inner">
+          <div class="side-section side-favorites">
+            <div class="side-head">
+              <span class="side-label">お気に入り</span>
+              <span id="lane-count" class="side-count"></span>
+              <button id="btn-new-lane" class="side-add" title="新しいレーン (⌘⇧N)">
+                <svg class="ic sm"><use href="#i-plus" /></svg>
+              </button>
+            </div>
+            <!-- Each lane is a genre folder of pins. Drag a page here to pin it. -->
+            <div id="lanes" class="lane-list"></div>
+          </div>
+          <div class="side-section side-pages">
+            <div class="side-head">
+              <span class="side-label">ページ</span>
+              <span id="page-count" class="side-count"></span>
+            </div>
+            <!-- The single global page list. The "+ 新しいページ" row is rendered
+                 as the last item so it always sits right under the last page. -->
+            <div id="pages" class="page-list"></div>
+          </div>
+        </div>
+      </aside>
+
       <!-- The WebContentsView for the active page is positioned exactly over
-           #stage by the main process. #home fills the same box and shows
-           through whenever no page is active. -->
+           #page-host by the main process. #home / #search fill the same box and
+           show through whenever no page is active. -->
       <section id="stage">
+        <div id="page-host"></div>
+
         <div id="home">
           <div id="home-inner">
-            <h1 class="home-title">栞</h1>
-            <p class="home-sub">読みかけを、置いたところから。</p>
+            <div class="home-hero">
+              <span class="brand-tile lg"><svg class="brand-mark"><use href="#i-logo" /></svg></span>
+              <h1 class="home-title">shiori</h1>
+              <p class="home-sub">読みかけを、置いたところから。</p>
+              <form id="home-search-form" class="home-search" autocomplete="off">
+                <svg class="home-search-ic"><use href="#i-search" /></svg>
+                <input
+                  id="home-search"
+                  type="text"
+                  spellcheck="false"
+                  autocomplete="off"
+                  placeholder="検索、または URL を入力"
+                />
+              </form>
+            </div>
+
+            <div class="home-list-head">
+              <h2>AIに聞く</h2>
+              <button id="home-grid-btn" class="head-link" title="並列AIモード (⌘⇧G)">並べて比較 →</button>
+            </div>
+            <div class="home-ai-grid">
+              <button class="home-ai-card" data-service="chatgpt">
+                <svg class="ai-ic"><use href="#i-chatgpt" /></svg>
+                <span>ChatGPT</span>
+              </button>
+              <button class="home-ai-card" data-service="gemini">
+                <svg class="ai-ic"><use href="#i-gemini" /></svg>
+                <span>Gemini</span>
+              </button>
+              <button class="home-ai-card" data-service="claude">
+                <svg class="ai-ic"><use href="#i-claude" /></svg>
+                <span>Claude</span>
+              </button>
+              <button class="home-ai-card" data-service="perplexity">
+                <svg class="ai-ic"><use href="#i-perplexity" /></svg>
+                <span>Perplexity</span>
+              </button>
+            </div>
+
             <div class="home-list-head">
               <h2>続きから読む</h2>
               <span id="home-count" class="muted"></span>
@@ -68,6 +395,38 @@
             </p>
           </div>
         </div>
+
+        <!-- Parallel AI mode. Each tile's WebContentsView is laid over its
+             .ai-tile-stage by the main process; the head, toolbar and broadcast
+             bar are chrome and stay clickable around the tiles. Tiles are built
+             in renderer.ts from the stored service line-up. -->
+        <div id="ai-grid">
+          <div class="grid-toolbar">
+            <span class="grid-title">並列AI</span>
+            <div id="grid-services" class="grid-services" role="group" aria-label="表示するAIを選ぶ"></div>
+            <button id="grid-close" class="icon-btn small" title="並列モードを終了 (⌘⇧G)" aria-label="終了">
+              <svg class="ic sm"><use href="#i-close" /></svg>
+            </button>
+          </div>
+          <div id="ai-tiles" class="ai-tiles"></div>
+          <form id="ai-broadcast" class="ai-broadcast" autocomplete="off">
+            <div class="broadcast-field">
+              <svg class="broadcast-ic"><use href="#i-send" /></svg>
+              <input
+                id="broadcast-input"
+                type="text"
+                spellcheck="false"
+                autocomplete="off"
+                placeholder="全AIに同じ質問を送る… （⌘↵）"
+              />
+            </div>
+            <label id="broadcast-toggle" class="broadcast-toggle" title="⌘↵で送信するか、入力欄に入れるだけにするか">
+              <input id="broadcast-submit" type="checkbox" />
+              <span>送信</span>
+            </label>
+            <button id="broadcast-send" type="submit" class="broadcast-send">全AIへ送信</button>
+          </form>
+        </div>
       </section>
 
       <aside id="clip-panel" hidden>
@@ -78,7 +437,9 @@
               全部コピー
             </button>
             <button id="btn-clear-clips" class="text-btn danger" title="すべて削除">消去</button>
-            <button id="btn-close-panel" class="icon-btn small" aria-label="閉じる">×</button>
+            <button id="btn-close-panel" class="icon-btn small" aria-label="閉じる">
+              <svg class="ic sm"><use href="#i-close" /></svg>
+            </button>
           </div>
         </div>
         <ul id="clip-list" class="clip-list"></ul>
@@ -86,7 +447,101 @@
           ページ上でテキストをコピーすると、出典つきでここに積まれます。
         </p>
       </aside>
+
+      <!-- The AI chat lives in its own WebContentsView, positioned exactly over
+           #ai-stage by the main process. Not an agent — just the official chat
+           site, one click away. -->
+      <aside id="ai-panel" hidden>
+        <div id="ai-resizer" title="ドラッグで幅を変更"></div>
+        <div class="panel-head ai-head">
+          <div class="ai-tabs" role="tablist" aria-label="AIサービス">
+            <button class="ai-tab" data-service="chatgpt" title="ChatGPT">
+              <svg class="ai-ic"><use href="#i-chatgpt" /></svg>
+            </button>
+            <button class="ai-tab" data-service="gemini" title="Gemini">
+              <svg class="ai-ic"><use href="#i-gemini" /></svg>
+            </button>
+            <button class="ai-tab" data-service="claude" title="Claude">
+              <svg class="ai-ic"><use href="#i-claude" /></svg>
+            </button>
+            <button class="ai-tab" data-service="perplexity" title="Perplexity">
+              <svg class="ai-ic"><use href="#i-perplexity" /></svg>
+            </button>
+          </div>
+          <span id="ai-title" class="ai-title"></span>
+          <div class="panel-actions">
+            <button id="btn-ai-grid" class="icon-btn small" title="タイルに展開（並列AI）">
+              <svg class="ic sm"><use href="#i-grid" /></svg>
+            </button>
+            <button id="btn-ai-reload" class="icon-btn small" title="再読み込み">
+              <svg class="ic sm"><use href="#i-reload" /></svg>
+            </button>
+            <button id="btn-ai-page" class="icon-btn small" title="ページとして開く">
+              <svg class="ic sm"><use href="#i-external" /></svg>
+            </button>
+            <button id="btn-ai-close" class="icon-btn small" aria-label="閉じる" title="閉じる (⌘⇧A)">
+              <svg class="ic sm"><use href="#i-close" /></svg>
+            </button>
+          </div>
+        </div>
+        <div id="ai-stage">
+          <p class="ai-hint">読み込み中…</p>
+        </div>
+      </aside>
+
+      <!-- Memo panel: a TODO list and a free-form scratchpad, plain chrome (no
+           WebContentsView), sharing the "one right panel at a time" rule. -->
+      <aside id="notes-panel" hidden>
+        <div class="panel-head">
+          <div class="notes-tabs" role="tablist" aria-label="メモの種類">
+            <button class="notes-tab active" data-tab="todo">TODO</button>
+            <button class="notes-tab" data-tab="memo">メモ</button>
+          </div>
+          <div class="panel-actions">
+            <button id="btn-notes-close" class="icon-btn small" aria-label="閉じる" title="閉じる (⌘⇧M)">
+              <svg class="ic sm"><use href="#i-close" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="notes-todo" class="notes-view">
+          <form id="todo-form" class="todo-add" autocomplete="off">
+            <input
+              id="todo-input"
+              type="text"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="タスクを追加… （Enter）"
+            />
+          </form>
+          <ul id="todo-list" class="todo-list"></ul>
+          <p id="todo-empty" class="empty small" hidden>
+            タスクはまだありません。上の欄から追加できます。
+          </p>
+          <div class="notes-foot">
+            <span id="todo-count" class="notes-count"></span>
+            <button id="btn-clear-done" class="text-btn">完了を消す</button>
+          </div>
+        </div>
+
+        <div id="notes-memo" class="notes-view" hidden>
+          <textarea
+            id="memo-input"
+            spellcheck="false"
+            placeholder="自由メモ… （自動保存されます）"
+          ></textarea>
+        </div>
+      </aside>
     </main>
+
+    <footer id="statusbar">
+      <span class="status-left">
+        <span id="status-conn" class="status-conn"><span class="status-dot"></span>接続済み</span>
+        <span class="status-sep">·</span>
+        <span id="status-counts" class="status-counts"></span>
+      </span>
+      <span id="status-read" class="status-read">読了 0%</span>
+    </footer>
 
     <script src="renderer.js"></script>
   </body>
