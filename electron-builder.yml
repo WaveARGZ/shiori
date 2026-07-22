@@ -79,6 +79,11 @@ linux:
   icon: build/icon.png
   category: Network
   synopsis: 読みかけを、置いたところから。
+  # The .deb target requires a Debian maintainer; package.json's author has no
+  # email, so set it here (a GitHub noreply address avoids exposing a personal
+  # one). Also fixes desktop-entry / taskbar window association on Linux.
+  maintainer: WaveARGZ <WaveARGZ@users.noreply.github.com>
+  desktopName: shiori.desktop
   target:
     - target: AppImage
       arch: [x64]
