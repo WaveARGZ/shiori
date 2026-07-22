@@ -364,7 +364,7 @@ export function buildSearchPage(
     min-height: 100%;
     background: #f5efe4;
     color: var(--ink);
-    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Segoe UI', 'Yu Gothic UI', 'Meiryo', 'Noto Sans JP', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Segoe UI', 'Yu Gothic UI', 'Meiryo', 'Noto Sans CJK JP', 'Noto Sans JP', sans-serif;
     font-size: 13px; -webkit-font-smoothing: antialiased;
     padding: 34px 44px 60px;
   }

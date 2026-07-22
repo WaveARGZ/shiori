@@ -73,3 +73,20 @@ nsis:
 
 portable:
   artifactName: ${productName}-Portable-${version}-x64.${ext}
+
+linux:
+  # electron-builder derives the required icon sizes from build/icon.png.
+  icon: build/icon.png
+  category: Network
+  synopsis: 読みかけを、置いたところから。
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+
+appImage:
+  artifactName: ${productName}-${version}-x86_64.${ext}
+
+deb:
+  artifactName: ${productName}-${version}-amd64.${ext}

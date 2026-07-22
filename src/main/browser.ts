@@ -56,16 +56,27 @@ const MAX_DETACHED_VIEWS = 5;
 const CHROME_FULL = process.versions.chrome;
 const CHROME_MAJOR = CHROME_FULL.split('.')[0]!;
 const IS_MAC = process.platform === 'darwin';
-export const CHROME_UA = IS_MAC
-  ? `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Safari/537.36`
-  : `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Safari/537.36`;
+const IS_WIN = process.platform === 'win32';
+// Present as the Chrome of whatever OS we actually run on — a UA that disagrees
+// with the real TLS/network fingerprint reads as spoofed. Linux Chrome is a
+// legitimate, common client, so Linux presents as itself (not Windows).
+const UA_OS_TOKEN = IS_MAC
+  ? 'Macintosh; Intel Mac OS X 10_15_7'
+  : IS_WIN
+    ? 'Windows NT 10.0; Win64; x64'
+    : 'X11; Linux x86_64';
+export const CHROME_UA = `Mozilla/5.0 (${UA_OS_TOKEN}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_FULL} Safari/537.36`;
+// navigator.platform value real Chrome reports per OS.
+const NAV_PLATFORM = IS_MAC ? 'macOS' : IS_WIN ? 'Win32' : 'Linux x86_64';
+// Sec-CH-UA-Platform + its version (Chrome sends an empty version on Linux).
+const CH_PLATFORM = IS_MAC ? 'macOS' : IS_WIN ? 'Windows' : 'Linux';
+const CH_PLATFORM_VERSION = IS_MAC ? '14.6.0' : IS_WIN ? '15.0.0' : '';
 const UA_OVERRIDE = {
   userAgent: CHROME_UA,
   acceptLanguage: 'ja,en;q=0.9',
-  // Top-level platform sets navigator.platform: real Chrome reports 'Win32'
-  // on Windows. (The macOS value predates this and is battle-tested against
-  // Google's sign-in checks — leave it untouched.)
-  platform: IS_MAC ? 'macOS' : 'Win32',
+  // Top-level platform sets navigator.platform. (The macOS value predates this
+  // and is battle-tested against Google's sign-in checks — leave it untouched.)
+  platform: NAV_PLATFORM,
   userAgentMetadata: {
     brands: [
       { brand: 'Not?A_Brand', version: '24' },
@@ -78,8 +89,8 @@ const UA_OVERRIDE = {
       { brand: 'Google Chrome', version: CHROME_FULL },
     ],
     fullVersion: CHROME_FULL,
-    platform: IS_MAC ? 'macOS' : 'Windows',
-    platformVersion: IS_MAC ? '14.6.0' : '15.0.0',
+    platform: CH_PLATFORM,
+    platformVersion: CH_PLATFORM_VERSION,
     architecture: process.arch === 'arm64' ? 'arm' : 'x86',
     model: '',
     mobile: false,
@@ -215,9 +226,9 @@ export class Browser {
       // WebContentsView, so only the sidebar / bars / panels get the glass
       // treatment. With themeSource forced to light, 'sidebar' renders as
       // bright frosted glass.
-      // Windows: no vibrancy exists, so paint a solid warm paper behind the
-      // same rgba() tints — the CSS is designed to read as a cream theme
-      // without the glass. A native frame supplies the window controls.
+      // Windows / Linux: no vibrancy exists, so paint a solid warm paper
+      // behind the same rgba() tints — the CSS is designed to read as a cream
+      // theme without the glass. A native frame supplies the window controls.
       ...(IS_MAC
         ? {
             backgroundColor: '#00000000',

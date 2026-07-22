@@ -1,6 +1,6 @@
 # 栞 (Shiori)
 
-タブ（＝場所）ではなく、**「行為の途中」** を管理する macOS / Windows 向けブラウザ。
+タブ（＝場所）ではなく、**「行為の途中」** を管理する macOS / Windows / Linux 向けブラウザ。
 
 全ページの読みかけ状態を自動で保存し、次に開いたときは続きから読めます。
 
@@ -16,11 +16,14 @@
 | macOS (Intel) | `Shiori-<version>-mac-x64.dmg` |
 | Windows (installer) | `Shiori-Setup-<version>-x64.exe` |
 | Windows (portable) | `Shiori-Portable-<version>-x64.exe` |
+| Linux (AppImage) | `Shiori-<version>-x86_64.AppImage` |
+| Linux (Debian/Ubuntu) | `Shiori-<version>-amd64.deb` |
 
 **未署名ビルドのため初回起動時に警告が出ます。**
 
 - **macOS**: Gatekeeper にブロックされたら「[未署名アプリの開き方](#️-未署名アプリの開き方)」参照
 - **Windows**: SmartScreen の「WindowsによってPCが保護されました」→ **詳細情報** → **実行** で起動
+- **Linux (AppImage)**: `chmod +x Shiori-*.AppImage` して実行。`.deb` は `sudo apt install ./Shiori-*.deb`
 
 ---
 

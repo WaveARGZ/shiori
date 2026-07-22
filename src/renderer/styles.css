@@ -81,9 +81,10 @@ body {
   background: var(--tint-body);
   color: var(--text);
   /* macOS resolves the front of the stack; 'Segoe UI'/'Yu Gothic UI'/'Meiryo'
-     are the Windows fallbacks so the JP UI never lands on raster Gothic. */
+     are the Windows fallbacks and 'Noto Sans CJK JP' the Linux one, so the JP
+     UI never lands on raster Gothic. */
   font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Segoe UI', 'Yu Gothic UI',
-    'Meiryo', 'Noto Sans JP', sans-serif;
+    'Meiryo', 'Noto Sans CJK JP', 'Noto Sans JP', sans-serif;
   font-size: 13px;
   -webkit-font-smoothing: antialiased;
   user-select: none;
